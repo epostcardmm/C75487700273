@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Padauk:wght@400;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Padauk', sans-serif;
+            min-height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url('https://images.unsplash.com/photo-1520763185298-1b434c919102?q=80&w=1600&auto=format&fit=crop') no-repeat center center/cover;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: #ffffff;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+            max-width: 90%;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            font-weight: 400;
+            margin-bottom: 25px;
+            opacity: 0.95;
+        }
+
+        /* Zodiac Lock Screen Styling */
+        .zodiac-scroll-wrapper {
+            width: 100%;
+            max-width: 550px;
+            overflow-x: auto;
+            padding: 15px 5px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .zodiac-scroll-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .zodiac-scroll-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+        }
+
+        .zodiac-container {
+            display: flex;
+            gap: 14px;
+            width: max-content;
+            padding: 5px;
+        }
+
+        .zodiac-card {
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            padding: 16px 12px;
+            width: 110px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            user-select: none;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+        .zodiac-card:hover, .zodiac-card:active {
+            transform: translateY(-6px) scale(1.06);
+            background: rgba(255, 255, 255, 0.32);
+            border-color: #f43f5e;
+            box-shadow: 0 10px 25px rgba(244, 63, 94, 0.5);
+        }
+
+        .zodiac-icon {
+            font-size: 2.8rem;
+            margin-bottom: 6px;
+            display: block;
+            line-height: 1;
+        }
+
+        .zodiac-name {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .zodiac-date {
+            font-size: 0.75rem;
+            opacity: 0.85;
+            margin-top: 3px;
+        }
+
+        .zodiac-error-msg {
+            color: #ff6b6b;
+            font-size: 1rem;
+            margin-top: 15px;
+            min-height: 25px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Buttons */
+        .btn-continue, .btn-back {
+            background-color: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            padding: 10px 24px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .btn-continue:hover, .btn-back:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .page {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            width: 100%;
+        }
+
+        .hidden {
+            display: none !important;
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        .active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transform: scale(1);
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        /* GIF Container */
+        .gif-container img {
+            max-width: 240px;
+            width: 100%;
+            height: auto;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .gif-container img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Page 3 GIFs Grid - Clean without Frame */
+        .gifs-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .interactive-gif {
+            cursor: pointer;
+            width: 180px;
+            height: 180px;
+            object-fit: contain;
+            border-radius: 0;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            animation: bounceIn 0.8s ease-in-out forwards;
+            background: transparent;
+            backdrop-filter: none;
+            padding: 0;
+            border: none;
+            box-shadow: none;
+        }
+
+        .interactive-gif:hover {
+            transform: scale(1.15);
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.9));
+            background: transparent;
+        }
+
+        /* Scrollable Page Styling */
+        .scrollable-page {
+            max-height: 85vh;
+            overflow-y: auto;
+            width: 100%;
+            padding-right: 5px;
+        }
+
+        .scrollable-page::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scrollable-page::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+        }
+
+        .section-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.2rem;
+            color: #ffe4e6;
+            margin: 30px 0 15px 0;
+            text-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
+        }
+
+        /* Puzzle Game Styling */
+        .puzzle-wrapper {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 20px 15px;
+            max-width: 340px;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .puzzle-instructions {
+            font-size: 0.95rem;
+            color: #ffe4e6;
+            margin-bottom: 12px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+        }
+
+        .puzzle-grid {
+            width: 280px;
+            height: 280px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            margin: 0 auto;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            transition: all 0.3s ease;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .puzzle-grid.solved {
+            gap: 0;
+            border-color: #4ade80;
+            box-shadow: 0 0 20px #4ade80;
+        }
+
+        .puzzle-tile {
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: transform 0.2s ease, border 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .puzzle-tile.selected {
+            border: 3px solid #f43f5e;
+            transform: scale(0.92);
+            box-shadow: 0 0 12px #f43f5e;
+        }
+
+        .puzzle-success-msg {
+            display: none;
+            margin-top: 15px;
+            font-size: 1.1rem;
+            color: #4ade80;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(74, 222, 128, 0.6);
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        /* Hidden Gallery Section */
+        #gallerySection {
+            display: none;
+            margin-top: 25px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .memory-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .memory-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Scratch Card Container */
+        .scratch-container {
+            position: relative;
+            width: 100%;
+            height: 160px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            touch-action: none;
+        }
+
+        .scratch-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .scratch-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            cursor: pointer;
+            z-index: 2;
+            transition: opacity 0.4s ease;
+        }
+
+        .memory-card h4 {
+            font-size: 1.1rem;
+            color: #ffe4e6;
+            margin-bottom: 4px;
+        }
+
+        .memory-card p {
+            font-size: 0.85rem;
+            color: #ffffff;
+            opacity: 0.9;
+            text-shadow: none;
+        }
+
+        .quote-box {
+            background: rgba(0, 0, 0, 0.25);
+            border-left: 4px solid #f43f5e;
+            padding: 15px 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 25px auto;
+            font-style: italic;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #fffdf0;
+        }
+
+        /* Page 5 - Long Scrollable Birthday Wish Text */
+        .long-wish-container {
+            width: 100%;
+            max-width: 580px;
+            margin: 0 auto;
+            text-align: left;
+            padding: 10px 15px;
+        }
+
+        .wish-header {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3rem;
+            color: #ffe4e6;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 12px rgba(244, 63, 94, 0.6);
+        }
+
+        .wish-text-block {
+            background: transparent;
+            backdrop-filter: none;
+            border: none;
+            box-shadow: none;
+            padding: 5px 0;
+        }
+
+        .wish-paragraph {
+            font-size: 1.1rem;
+            line-height: 2.1;
+            color: #ffffff;
+            margin-bottom: 22px;
+            text-indent: 25px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .wish-promises {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .wish-promises li {
+            padding: 10px 0;
+            font-size: 1.02rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ffffff;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+            border-bottom: 1px dotted rgba(255, 255, 255, 0.2);
+        }
+
+        .wish-footer {
+            font-family: 'Caveat', cursive;
+            font-size: 2.2rem;
+            color: #ffe4e6;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 30px;
+            text-shadow: 0 0 12px rgba(244, 63, 94, 0.8);
+        }
+
+        /* Page 6 - Dynamic Live Calendar Styling */
+        .calendar-card {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            width: 100%;
+            max-width: 360px;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            text-shadow: none;
+            margin: 15px auto;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: #9f1239;
+            margin-bottom: 15px;
+        }
+
+        .cal-btn {
+            background: #9f1239;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .cal-btn:hover {
+            background: #e11d48;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            text-align: center;
+        }
+
+        .day-name {
+            font-weight: bold;
+            color: #888;
+            font-size: 0.85rem;
+            padding-bottom: 5px;
+        }
+
+        .day {
+            padding: 8px 0;
+            font-size: 0.9rem;
+            border-radius: 10px;
+            background: #f8f9fa;
+            color: #444;
+            position: relative;
+        }
+
+        .day.empty {
+            background: transparent;
+        }
+
+        .day.today-day {
+            background: #dbeafe !important;
+            border: 2px solid #3b82f6;
+            color: #1e40af;
+            font-weight: bold;
+        }
+
+        .day.special-oct-7 {
+            background: #ffe4e6 !important;
+            border: 2px solid #f43f5e;
+            color: #9f1239;
+            font-weight: bold;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        .day.special-oct-7::after {
+            content: '❤️';
+            position: absolute;
+            top: -8px;
+            right: -4px;
+            font-size: 0.8rem;
+        }
+
+        /* Calendar English Note */
+        .calendar-english-note {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #f43f5e;
+            padding: 15px 20px;
+            border-radius: 12px;
+            max-width: 360px;
+            margin: 15px auto;
+            font-style: italic;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #fffdf0;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+
+        /* Birthday Box */
+        .birthday-card-box {
+            display: none;
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.35), rgba(225, 29, 72, 0.25));
+            border: 1px solid rgba(255, 228, 230, 0.5);
+            backdrop-filter: blur(8px);
+            padding: 20px;
+            border-radius: 18px;
+            max-width: 360px;
+            margin: 20px auto;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(244, 63, 94, 0.3);
+            animation: pulse 2s infinite alternate;
+        }
+
+        .bday-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.2rem;
+            color: #ffe4e6;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(244, 63, 94, 0.8);
+        }
+
+        .bday-text {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #ffffff;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+        }
+
+        /* Lightbox */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .lightbox.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .lightbox-content {
+            width: 90%;
+            max-width: 340px;
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 24px;
+            text-align: center;
+            position: relative;
+            color: #333;
+            text-shadow: none;
+        }
+
+        .lightbox-img {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            border-radius: 16px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: -45px;
+            right: 5px;
+            color: white;
+            font-size: 2.2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 rgba(244, 63, 94, 0.4); }
+            100% { transform: scale(1.03); box-shadow: 0 0 15px rgba(244, 63, 94, 0.8); }
+        }
+
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3) translateY(20px); }
+            50% { opacity: 0.9; transform: scale(1.1) translateY(-5px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Screen Responsive Adjustments */
+        @media (max-width: 600px) {
+            .title { font-size: 2.5rem; }
+            .subtitle { font-size: 1rem; }
+            
+            .interactive-gif { 
+                width: 130px; 
+                height: 130px; 
+            }
+            .gifs-display { 
+                gap: 15px; 
+            }
+
+            .wish-header { font-size: 2.4rem; }
+            .wish-paragraph { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div>
+
+    <div class="container">
+        <!-- စာမျက်နှာ (၀) - Zodiac Sign Lock Screen -->
+        <div id="zodiacLockPage" class="page active">
+            <h1 class="title" style="font-size: 2.5rem;">Zodiac Sign Lock 🌟</h1>
+            <p class="subtitle">မင်းရဲ့ Zodiac Sign လေးကို ဘေးသို့ဆွဲပြီး မှန်အောင်ရွေးပါ ✨</p>
+            
+            <div class="zodiac-scroll-wrapper" id="zodiacWrapper">
+                <div class="zodiac-container">
+                    <!-- 1. Aries -->
+                    <div class="zodiac-card" onclick="checkZodiac('aries')">
+                        <span class="zodiac-icon">♈</span>
+                        <div class="zodiac-name">Aries</div>
+                        <div class="zodiac-date">Mar 21 - Apr 19</div>
+                    </div>
+                    <!-- 2. Taurus -->
+                    <div class="zodiac-card" onclick="checkZodiac('taurus')">
+                        <span class="zodiac-icon">♉</span>
+                        <div class="zodiac-name">Taurus</div>
+                        <div class="zodiac-date">Apr 20 - May 20</div>
+                    </div>
+                    <!-- 3. Gemini -->
+                    <div class="zodiac-card" onclick="checkZodiac('gemini')">
+                        <span class="zodiac-icon">♊</span>
+                        <div class="zodiac-name">Gemini</div>
+                        <div class="zodiac-date">May 21 - Jun 20</div>
+                    </div>
+                    <!-- 4. Cancer -->
+                    <div class="zodiac-card" onclick="checkZodiac('cancer')">
+                        <span class="zodiac-icon">♋</span>
+                        <div class="zodiac-name">Cancer</div>
+                        <div class="zodiac-date">Jun 21 - Jul 22</div>
+                    </div>
+                    <!-- 5. Leo -->
+                    <div class="zodiac-card" onclick="checkZodiac('leo')">
+                        <span class="zodiac-icon">♌</span>
+                        <div class="zodiac-name">Leo</div>
+                        <div class="zodiac-date">Jul 23 - Aug 22</div>
+                    </div>
+                    <!-- 6. Virgo (Correct Unlock) -->
+                    <div class="zodiac-card" onclick="checkZodiac('virgo')">
+                        <span class="zodiac-icon">♍</span>
+                        <div class="zodiac-name">Virgo</div>
+                        <div class="zodiac-date">Aug 23 - Sep 22</div>
+                    </div>
+                    <!-- 7. Libra -->
+                    <div class="zodiac-card" onclick="checkZodiac('libra')">
+                        <span class="zodiac-icon">♎</span>
+                        <div class="zodiac-name">Libra</div>
+                        <div class="zodiac-date">Sep 23 - Oct 22</div>
+                    </div>
+                    <!-- 8. Scorpio -->
+                    <div class="zodiac-card" onclick="checkZodiac('scorpio')">
+                        <span class="zodiac-icon">♏</span>
+                        <div class="zodiac-name">Scorpio</div>
+                        <div class="zodiac-date">Oct 23 - Nov 21</div>
+                    </div>
+                    <!-- 9. Sagittarius -->
+                    <div class="zodiac-card" onclick="checkZodiac('sagittarius')">
+                        <span class="zodiac-icon">♐</span>
+                        <div class="zodiac-name">Sagittarius</div>
+                        <div class="zodiac-date">Nov 22 - Dec 21</div>
+                    </div>
+                    <!-- 10. Capricorn -->
+                    <div class="zodiac-card" onclick="checkZodiac('capricorn')">
+                        <span class="zodiac-icon">♑</span>
+                        <div class="zodiac-name">Capricorn</div>
+                        <div class="zodiac-date">Dec 22 - Jan 19</div>
+                    </div>
+                    <!-- 11. Aquarius -->
+                    <div class="zodiac-card" onclick="checkZodiac('aquarius')">
+                        <span class="zodiac-icon">♒</span>
+                        <div class="zodiac-name">Aquarius</div>
+                        <div class="zodiac-date">Jan 20 - Feb 18</div>
+                    </div>
+                    <!-- 12. Pisces -->
+                    <div class="zodiac-card" onclick="checkZodiac('pisces')">
+                        <span class="zodiac-icon">♓</span>
+                        <div class="zodiac-name">Pisces</div>
+                        <div class="zodiac-date">Feb 19 - Mar 20</div>
+                    </div>
+                </div>
+            </div>
+
+            <p id="zodiacErrorMsg" class="zodiac-error-msg"></p>
+        </div>
+
+        <!-- စာမျက်နှာ (၁) -->
+        <div id="page1" class="page hidden">
+            <h1 class="title">Happy Birthday!</h1>
+            <p class="subtitle">Cheers to the new chapter of your life!</p>
+            <button class="btn-continue" onclick="goToPage(1, 2)">
+                Continue 🌸
+            </button>
+        </div>
+
+        <!-- စာမျက်နှာ (၂) - ပါဆယ်ပုံး GIF -->
+        <div id="page2" class="page hidden">
+            <h1 class="title">Happy Birthday!</h1>
+            <p class="subtitle">ပါဆယ်ပုံးလေးကို နှိပ်လိုက်ပါ 🎁</p>
+            <div class="gif-container">
+                <img src="https://media.tenor.com/Myfbtk1gOAgAAAAi/h%E1%BB%99p-qu%C3%A0-h%C3%A0ng-rong.gif" alt="Parcel Box GIF" onclick="goToPage(2, 3)">
+            </div>
+        </div>
+
+        <!-- စာမျက်နှာ (၃) - GIF ၃ ခု ပြသသည့်နေရာ (Clean & No Frame) -->
+        <div id="page3" class="page hidden">
+            <h1 class="title">Happy Birthday!</h1>
+            <p class="subtitle">စိတ်ကြိုက် တစ်ခုချင်းစီကို နှိပ်ကြည့်ပါ ✨</p>
+            <div class="gifs-display">
+                <!-- 1. Bouquet GIF -> Flowers Page (Page 4) -->
+                <img src="https://media.tenor.com/1F6DVPSqEgsAAAAi/rosas.gif" alt="Bouquet" class="interactive-gif" onclick="goToPage(3, 4)" title="Flowers For You 💐">
+                
+                <!-- 2. Envelope GIF -> Birthday Wish Text (Page 5) -->
+                <img src="https://media.tenor.com/8-9tYFPxEMwAAAAi/little-pills.gif" alt="Letter" class="interactive-gif" onclick="goToPage(3, 5)" title="Birthday Wish ✉️">
+                
+                <!-- 3. Calendar GIF -> Live Calendar (Page 6) -->
+                <img src="https://media.tenor.com/j-REOBUbY6cAAAAi/animiene-miene.gif" alt="Calendar" class="interactive-gif" onclick="goToPage(3, 6)" title="Live Calendar 📅">
+            </div>
+        </div>
+
+        <!-- စာမျက်နှာ (၄) - Flowers for you Page (3x3 Puzzle Game + Scratch Gallery) -->
+        <div id="page4" class="page hidden">
+            <div class="scrollable-page" id="page4Scroll">
+                <!-- Flowers for you GIF Container -->
+                <div style="margin: 20px 0; text-align: center;">
+                    <img src="https://media.tenor.com/geUaUwuvhegAAAAi/rosa.gif" alt="Flowers for you GIF" style="max-width: 250px; width: 100%;">
+                    <h2 style="font-family: 'Dancing Script', cursive; font-size: 2.8rem; color: #ffe4e6; margin-top: 15px; text-shadow: 0 0 12px rgba(244, 63, 94, 0.7);">Flowers for you 💐</h2>
+                </div>
+
+                <!-- 3x3 Puzzle Game Section -->
+                <div class="puzzle-wrapper">
+                    <h3 style="color:#ffe4e6; font-size:1.8rem; margin-bottom: 6px; font-family:'Dancing Script', cursive;">Memory Puzzle Game 🧩</h3>
+                    <p class="puzzle-instructions">ပုံလေး ၂ ခုစီကို နှိပ်ပြီး အရာချင်း လဲလှယ်ကာ ပုံမှန်အတိုင်း ဆက်ပေးပါ ✨</p>
+                    
+                    <div class="puzzle-grid" id="puzzleContainer">
+                        <!-- Dynamic Puzzle Tiles generated by JS -->
+                    </div>
+
+                    <div class="puzzle-success-msg" id="puzzleSuccessMsg">
+                        🎉 အဖြေမှန်သွားပါပြီ! အောက်သို့ Scroll ဆွဲကြည့်ပါ 👇
+                    </div>
+                </div>
+
+                <!-- Hidden Gallery Section (Puzzle နိုင်မှ ပေါ်လာမည်) -->
+                <div id="gallerySection">
+                    <h2 class="section-title">Special Moments Gallery 📸</h2>
+                    <p style="font-size:0.9rem; opacity: 0.9; margin-bottom: 15px;">(ပုံလေးများကို လက်ဖြင့် ခဲခြစ်ကြည့်ပါ 🪙)</p>
+
+                    <div class="memory-grid">
+                        <div class="memory-card" data-title="Beauty ☕" data-desc="The day I knew my life would never be the same again. Your smile was brighter than the morning sunshine.">
+                            <div class="scratch-container">
+                                <img src="https://i.ibb.co/qvxF16L/IMG-20261007-002323-017.jpg" alt="Coffee Date">
+                                <canvas class="scratch-canvas"></canvas>
+                            </div>
+                            <h4>Beauty☕</h4>
+                            <p>Where our story gently began...</p>
+                        </div>
+
+                        <div class="memory-card" data-title="Sunshine 🌅" data-desc="Walking hand in hand under the golden evening sky. Every step with you feels like home.">
+                            <div class="scratch-container">
+                                <img src="https://i.ibb.co/3m9GFs3f/IMG-20261007-002322-646.jpg" alt="Sunset">
+                                <canvas class="scratch-canvas"></canvas>
+                            </div>
+                            <h4>Sunshine 🌅</h4>
+                            <p>Hand in hand with you forever...</p>
+                        </div>
+
+                        <div class="memory-card" data-title="Unforgettable Smiles ✨" data-desc="Your laughter is my favorite song in the whole universe. May you always laugh like this!">
+                            <div class="scratch-container">
+                                <img src="https://i.ibb.co/35sL28yR/IMG-20261007-002322-618.jpg" alt="Smile">
+                                <canvas class="scratch-canvas"></canvas>
+                            </div>
+                            <h4>"Unforgettable Smiles ✨</h4>
+                            <p>Your smile lightens up my world...</p>
+                        </div>
+
+                        <div class="memory-card" data-title="Bright Future 💖 💖" data-desc="Looking forward to making endless new memories and celebrating countless birthdays with you.">
+                            <div class="scratch-container">
+                                <img src="https://i.ibb.co/bgWg4QnF/IMG-20261007-002322-738.jpg" alt="Future">
+                                <canvas class="scratch-canvas"></canvas>
+                            </div>
+                            <h4>Bright Future 💖</h4>
+                            <p>To infinity and beyond...</p>
+                        </div>
+                    </div>
+
+                    <div class="quote-box">
+                        "I saw that you were perfect, and so I loved you. Then I saw that you were not perfect and I loved you even more." ❤️
+                    </div>
+                </div>
+
+                <button class="btn-back" onclick="goToPage(4, 3)" style="margin: 25px 0;">🔙 Back to Gifts</button>
+            </div>
+        </div>
+
+        <!-- စာမျက်နှာ (၅) - Long Scrollable Birthday Wish Text -->
+        <div id="page5" class="page hidden">
+            <div class="scrollable-page">
+                <div class="long-wish-container">
+                    <div class="wish-header">Happy Birthday,! 💌</div>
+                    
+                    <div class="wish-text-block">
+                        <p class="wish-paragraph">
+                            ဒီနေ့လိုမျိုး အရမ်းကို ထူးခြားဆန်းကြယ်ပြီး လှပတဲ့ မွေးနေ့ရက်မြတ်လေးမှာ မင်းလေးအတွက် ငါ့နှလုံးသားထဲက အလှတရားတွေနဲ့ ရေးဖွဲ့ထားတဲ့ စကားလုံးတွေကို ပါးလိုက်ချင်ပါတယ်။ မင်းလေး ဘဝထဲ ရောက်ရှိလာခဲ့တဲ့ နေ့ရက်ကစပြီး ငါ့ရဲ့ ကမ္ဘာငယ်လေးဟာ ပိုမို တောက်ပပြီး အရောင်အသွေး စုံလင်သွားခဲ့ရတာပါ။ 🎂✨
+                        </p>
+                        
+                        <p class="wish-paragraph">
+                            ငါတို့ အတူတူ ဖြတ်သန်းခဲ့ရတဲ့ ရက်ပေါင်းများစွာမှာ ပျော်ရွှင်စရာတွေ၊ ရယ်မောသံတွေနဲ့ အပြုံးပေါင်းများစွာ ပါဝင်ခဲ့သလို အခက်အခဲ ရုန်းကန်ရမှုများကိုလည်း လက်ချင်းချိတ်ပြီး ကျော်ဖြတ်ခဲ့ကြပါတယ်။ မင်းလေးရဲ့ အပြုံးတစ်ချက်က ငါ့ရဲ့ ပင်ပန်းသမျှတွေကို မေ့ပျောက်စေခဲ့ပြီး၊ မင်းလေးရဲ့ ဂရုစိုက်မှု သေးသေးလေးတွေက ငါ့အတွက်တော့ ကြီးမားတဲ့ ခွန်အားတွေ ဖြစ်ခဲ့ရပါတယ်။
+                        </p>
+
+                        <p class="wish-paragraph">
+                            ဘဝဆိုတဲ့ ခရီးလမ်းမှာ ခလုတ်သင်းခွေတွေ ရှိနေပါစေဦးတော့ မင်းလေးသာ ငါ့ဘေးမှာ ရှိနေမယ်ဆိုရင် ဘယ်လို စိန်ခေါ်မှုမျိုးကိုမဆို ငါ ပြုံးပြုံးလေးနဲ့ ရင်ဆိုင်ကျော်ဖြတ်နိုင်ပါတယ်။ မင်းဟာ ငါ့အတွက်တော့ ချစ်သူသက်သက် မဟုတ်ဘဲ ငါ့ရဲ့ အကောင်းဆုံး သူငယ်ချင်း၊ ငါ့ရဲ့ ခွန်အားနဲ့ ငါ့ရဲ့ အိမ်ကလေး ပမာ နွေးထွေးမှုကို ပေးစွမ်းနိုင်သူပါ။ 💖
+                        </p>
+
+                        <p class="wish-paragraph">
+                            ဒီမွေးနေ့ကစပြီး နောင်နှစ်ပေါင်းများစွာအထိ မင်းလေး လိုချင်တဲ့ အိမ်မက်တွေ၊ မင်းလေး လျှောက်လှမ်းချင်တဲ့ လမ်းကြောင်းတိုင်းမှာ အောင်မြင်မှုအပေါင်းနဲ့ ပြည့်စုံပါစေ။ စိတ်၏ချမ်းသာခြင်း၊ ကိုယ်၏ကျန်းမာခြင်းတွေနဲ့အတူ အမြဲတမ်း လှပဆန်းသစ်နေပါစေလို့ နှလုံးသားထဲကနေ ဆုမွန်ကောင်း တောင်းပေးလိုက်ပါတယ်။
+                        </p>
+
+                        <h3 style="color:#ffe4e6; font-size:1.4rem; margin: 25px 0 10px 0; font-family:'Dancing Script', cursive; text-shadow: 2px 2px 8px rgba(0,0,0,0.8);">
+                            Our Sweet Promises 🌟
+                        </h3>
+                        <ul class="wish-promises">
+                            <li>💖 မင်းလေး စိတ်ညစ်နေတဲ့အခါတိုင်း နားထောင်ပေးသူတစ်ယောက် အမြဲတမ်း ဖြစ်နေပေးပါ့မယ်။</li>
+                            <li>🤝 ဘယ်လိုအခက်အခဲပဲကြုံကြုံ မင်းရဲ့လက်ကို ဘယ်တော့မှ လွှတ်မပေးဘဲ ဆုပ်ကိုင်ထားပါ့မယ်။</li>
+                            <li>☕ မနက်ခင်းတိုင်းမှာ မင်းလေးရဲ့ အပြုံးကို အရင်ဆုံး မြင်တွေ့ခွင့်ရအောင် ကြိုးစားပါ့မယ်။</li>
+                            <li>✈️ အတူတူ သွားချင်တဲ့ ခရီးစဉ်တွေအကုန်လုံးကို အတူတူ လက်တွဲပြီး သွားကြပါမယ်။</li>
+                            <li>🌈 ဘဝရဲ့ နောက်ဆုံးနေ့ရက်အထိ မင်းလေးကို လေးစားချစ်ခင်စွာနဲ့ ဂရုစိုက်စောင့်ရှောက်သွားပါ့မယ်။</li>
+                            <li>Bl ဇာတ်ကားတွေလည်း အရမ်းမကြည့်နဲ့ မင်းရဲ့ မျက်ကွင်းလှလှလေးတွေ ညိုသွားမယ်</li>
+                        </ul>
+
+                        <div class="wish-footer">Forever Yours ❤️</div>
+                    </div>
+                </div>
+
+                <button class="btn-back" onclick="goToPage(5, 3)" style="margin: 20px 0 25px 0;">🔙 Back to Gifts</button>
+            </div>
+        </div>
+
+        <!-- စာမျက်နှာ (၆) - Dynamic Live Calendar & Scrollable English Text -->
+        <div id="page6" class="page hidden">
+            <div class="scrollable-page">
+                <h1 class="title" style="font-size: 2.2rem;">Live Calendar 📅</h1>
+                
+                <div class="calendar-card">
+                    <div class="calendar-header">
+                        <button class="cal-btn" onclick="changeMonth(-1)">&lt;</button>
+                        <span id="monthYearText"></span>
+                        <button class="cal-btn" onclick="changeMonth(1)">&gt;</button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Dynamic Calendar -->
+                    </div>
+                </div>
+
+                <div class="calendar-english-note">
+                    <p>"Every single day with you is a precious gift. Time flies, but my love for you grows stronger with every passing second, every sunrise, and every moonlit night. You are my today, my tomorrow, and my forever." ❤️✨</p>
+                </div>
+
+                <div class="birthday-card-box" id="bdayBox">
+                    <h3 class="bday-title">🎉 Happy <span id="bdayAgeText">--</span> Birthday,! 🎂</h3>
+                    <p class="bday-text">
+                        "May this special year bring you endless joy, peace, success, and all the happiness your sweet heart can hold. hold. On October 7th,, the world became a much brighter place because you were born. Thank you for being the most amazing person in my life!" 💖✨
+                    </p>
+                </div>
+
+                <button class="btn-back" onclick="goToPage(6, 3)" style="margin: 15px 0 25px 0;">🔙 Back to Gifts</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox Popup -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <button class="close-btn" id="closeBtn">&times;</button>
+            <img src="" alt="Full View" class="lightbox-img" id="lightboxImg">
+            <div style="margin-top:10px;">
+                <h3 id="lightboxTitle" style="color:#9f1239;"></h3>
+                <p id="lightboxDesc" style="color:#666; font-size:0.9rem; margin-top:5px;"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* --- Zodiac Lock Screen Logic --- */
+        const unlockZodiac = 'libra';
+
+        function checkZodiac(selectedSign) {
+            const errorMsg = document.getElementById('zodiacErrorMsg');
+            const wrapper = document.getElementById('zodiacWrapper');
+
+            if (selectedSign === unlockZodiac) {
+                errorMsg.style.color = '#4ade80';
+                errorMsg.textContent = '🎉 Correct! Unlocking... 🔓';
+
+                setTimeout(() => {
+                    const lockPage = document.getElementById('zodiacLockPage');
+                    const page1 = document.getElementById('page1');
+
+                    lockPage.classList.remove('active');
+                    lockPage.classList.add('hidden');
+
+                    setTimeout(() => {
+                        page1.classList.remove('hidden');
+                        page1.classList.add('active');
+                    }, 300);
+                }, 600);
+            } else {
+                errorMsg.style.color = '#ff6b6b';
+                errorMsg.textContent = '❌ မှားနေပါတယ်နော်! Zodiac Sign လေးပြန်ရွေးပေးပါဦး ❤️';
+                
+                wrapper.classList.add('shake');
+                setTimeout(() => {
+                    wrapper.classList.remove('shake');
+                }, 400);
+            }
+        }
+
+        /* --- Page Navigation --- */
+        function goToPage(fromPage, toPage) {
+            const current = document.getElementById('page' + fromPage);
+            const next = document.getElementById('page' + toPage);
+
+            current.classList.remove('active');
+            current.classList.add('hidden');
+
+            setTimeout(() => {
+                next.classList.remove('hidden');
+                next.classList.add('active');
+
+                if (toPage === 4) {
+                    initPuzzle();
+                    initScratchCards();
+                }
+            }, 300);
+        }
+
+        /* --- 3x3 Puzzle Logic --- */
+        let puzzleOrder = [];
+        let selectedTileIndex = null;
+        let isPuzzleSolved = false;
+
+        function initPuzzle() {
+            isPuzzleSolved = false;
+            selectedTileIndex = null;
+
+            const puzzleContainer = document.getElementById('puzzleContainer');
+            const gallerySection = document.getElementById('gallerySection');
+            const successMsg = document.getElementById('puzzleSuccessMsg');
+
+            puzzleContainer.classList.remove('solved');
+            gallerySection.style.display = 'none';
+            successMsg.style.display = 'none';
+
+            let tiles = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+            do {
+                tiles.sort(() => Math.random() - 0.5);
+            } while (checkPuzzleArraySolved(tiles));
+
+            puzzleOrder = tiles;
+            renderPuzzle();
+        }
+
+        function checkPuzzleArraySolved(arr) {
+            return arr.every((val, idx) => val === idx);
+        }
+
+        function renderPuzzle() {
+            const container = document.getElementById('puzzleContainer');
+            container.innerHTML = '';
+
+            puzzleOrder.forEach((originalPos, currentIdx) => {
+                const tile = document.createElement('div');
+                tile.className = 'puzzle-tile';
+
+                if (selectedTileIndex === currentIdx) {
+                    tile.classList.add('selected');
+                }
+
+                const row = Math.floor(originalPos / 3);
+                const col = originalPos % 3;
+
+                tile.style.backgroundImage = "url('https://i.ibb.co/WpFdYsMj/IMG-20261007-003124.jpg')";
+                tile.style.backgroundSize = "280px 280px";
+                tile.style.backgroundPosition = `-${col * 93.33}px -${row * 93.33}px`;
+
+                tile.onclick = () => onTileClick(currentIdx);
+                container.appendChild(tile);
+            });
+        }
+
+        function onTileClick(index) {
+            if (isPuzzleSolved) return;
+
+            if (selectedTileIndex === null) {
+                selectedTileIndex = index;
+                renderPuzzle();
+            } else if (selectedTileIndex === index) {
+                selectedTileIndex = null;
+                renderPuzzle();
+            } else {
+                let temp = puzzleOrder[selectedTileIndex];
+                puzzleOrder[selectedTileIndex] = puzzleOrder[index];
+                puzzleOrder[index] = temp;
+                selectedTileIndex = null;
+
+                renderPuzzle();
+                verifyPuzzleState();
+            }
+        }
+
+        function verifyPuzzleState() {
+            if (checkPuzzleArraySolved(puzzleOrder)) {
+                isPuzzleSolved = true;
+
+                const container = document.getElementById('puzzleContainer');
+                const gallerySection = document.getElementById('gallerySection');
+                const successMsg = document.getElementById('puzzleSuccessMsg');
+
+                container.classList.add('solved');
+                successMsg.style.display = 'block';
+                gallerySection.style.display = 'block';
+
+                setTimeout(() => {
+                    gallerySection.scrollIntoView({ behavior: 'smooth' });
+                }, 400);
+            }
+        }
+
+        /* --- Scratch Card Logic --- */
+        function initScratchCards() {
+            const memoryCards = document.querySelectorAll('.memory-card');
+
+            memoryCards.forEach((card) => {
+                const canvas = card.querySelector('.scratch-canvas');
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+                const container = card.querySelector('.scratch-container');
+
+                canvas.width = container.offsetWidth || 220;
+                canvas.height = container.offsetHeight || 160;
+
+                ctx.fillStyle = '#c0c0c0';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#555555';
+                ctx.font = 'bold 15px Padauk, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('ခဲခြစ်ရန် 🪙', canvas.width / 2, canvas.height / 2 + 5);
+
+                let isScratching = false;
+
+                function scratch(e) {
+                    if (!isScratching) return;
+                    e.preventDefault();
+                    
+                    const rect = canvas.getBoundingClientRect();
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                    const x = clientX - rect.left;
+                    const y = clientY - rect.top;
+
+                    ctx.globalCompositeOperation = 'destination-out';
+                    ctx.beginPath();
+                    ctx.arc(x, y, 22, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    checkScratchPercentage();
+                }
+
+                function checkScratchPercentage() {
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const pixels = imageData.data;
+                    let cleared = 0;
+
+                    for (let i = 3; i < pixels.length; i += 4) {
+                        if (pixels[i] === 0) cleared++;
+                    }
+
+                    const percentage = (cleared / (pixels.length / 4)) * 100;
+                    if (percentage > 35) {
+                        canvas.style.opacity = '0';
+                        setTimeout(() => {
+                            canvas.style.display = 'none';
+                        }, 400);
+                    }
+                }
+
+                canvas.addEventListener('mousedown', (e) => { isScratching = true; scratch(e); });
+                canvas.addEventListener('mousemove', scratch);
+                window.addEventListener('mouseup', () => { isScratching = false; });
+
+                canvas.addEventListener('touchstart', (e) => { isScratching = true; scratch(e); });
+                canvas.addEventListener('touchmove', scratch);
+                window.addEventListener('touchend', () => { isScratching = false; });
+            });
+        }
+
+        /* --- Birthday Date Check --- */
+        function checkAndShowBirthdayWish() {
+            const birthYear = 2004;
+            const birthMonth = 9; 
+            const birthDay = 7;
+
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentDate = today.getDate();
+
+            const bdayBox = document.getElementById('bdayBox');
+
+            if (currentMonth === birthMonth && currentDate === birthDay) {
+                const age = today.getFullYear() - birthYear;
+                
+                function getOrdinalSuffix(n) {
+                    let s = ["th", "st", "nd", "rd"], v = n % 100;
+                    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+                }
+
+                const ageTextElem = document.getElementById('bdayAgeText');
+                if (ageTextElem) {
+                    ageTextElem.textContent = getOrdinalSuffix(age);
+                }
+
+                if (bdayBox) bdayBox.style.display = 'block';
+            } else {
+                if (bdayBox) bdayBox.style.display = 'none';
+            }
+        }
+
+        /* --- Live Calendar Logic --- */
+        let navDate = new Date();
+
+        function renderCalendar() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            const monthYearText = document.getElementById('monthYearText');
+            
+            const year = navDate.getFullYear();
+            const month = navDate.getMonth();
+            const today = new Date();
+
+            const monthNamesMM = [
+                "၁ လပိုင်း (Jan)", "၂ လပိုင်း (Feb)", "၃ လပိုင်း (Mar)", "၄ လပိုင်း (Apr)", 
+                "၅ လပိုင်း (May)", "၆ လပိုင်း (Jun)", "၇ လပိုင်း (Jul)", "၈ လပိုင်း (Aug)", 
+                "၉ လပိုင်း (Sep)", "၁၀ လပိုင်း (Oct)", "၁၁ လပိုင်း (Nov)", "၁၂ လပိုင်း (Dec)"
+            ];
+
+            monthYearText.textContent = `${monthNamesMM[month]} ${year}`;
+
+            calendarGrid.innerHTML = `
+                <div class="day-name">Sun</div>
+                <div class="day-name">Mon</div>
+                <div class="day-name">Tue</div>
+                <div class="day-name">Wed</div>
+                <div class="day-name">Thu</div>
+                <div class="day-name">Fri</div>
+                <div class="day-name">Sat</div>
+            `;
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const lastDay = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < firstDayIndex; i++) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.classList.add('day', 'empty');
+                calendarGrid.appendChild(emptyDiv);
+            }
+
+            for (let day = 1; day <= lastDay; day++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.classList.add('day');
+                dayDiv.textContent = day;
+
+                if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                    dayDiv.classList.add('today-day');
+                    dayDiv.title = "Today";
+                }
+
+                if (month === 9 && day === 7) {
+                    dayDiv.classList.add('special-oct-7');
+                    dayDiv.title = "Special Birthday Day! ❤️";
+                }
+
+                calendarGrid.appendChild(dayDiv);
+            }
+        }
+
+        function changeMonth(delta) {
+            navDate.setMonth(navDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        renderCalendar();
+        checkAndShowBirthdayWish();
+
+        /* --- Lightbox Script --- */
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxTitle = document.getElementById('lightboxTitle');
+        const lightboxDesc = document.getElementById('lightboxDesc');
+        const closeBtn = document.getElementById('closeBtn');
+        
+        const clickableCards = document.querySelectorAll('.memory-card');
+
+        clickableCards.forEach(card => {
+            const img = card.querySelector('img');
+            img.addEventListener('click', () => {
+                lightboxImg.src = img.src;
+                lightboxTitle.textContent = card.getAttribute('data-title');
+                lightboxDesc.textContent = card.getAttribute('data-desc');
+                lightbox.classList.add('active');
+            });
+        });
+
+        closeBtn.addEventListener('click', () => lightbox.classList.remove('active'));
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) lightbox.classList.remove('active');
+        });
+    </script>
+</body>
+</html>
